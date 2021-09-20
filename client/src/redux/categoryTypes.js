@@ -1,0 +1,5 @@
+export const CATEGORY_TYPE_FEATHERING = 'feathering'
+export const CATEGORY_TYPE_ARROW = 'arrow'
+export const CATEGORY_TYPE_LIPS = 'lips'
+export const CATEGORY_TYPE_MICROBLADING = 'Microblading'
+export const CATEGORY_TYPE_HAIR_TECHNOLOGY = 'hairTechnology'

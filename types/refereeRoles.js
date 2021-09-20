@@ -1,0 +1,9 @@
+const COMPETITION_ROLES = {
+    register: 'COMPETITION_ROLE_REGISTER',
+    photo: 'COMPETITION_ROLE_PHOTO',
+    hyhienical: 'COMPETITION_ROLE_HYHINICAL',
+    referee: 'COMPETITION_ROLE_REFEREE',
+    screen: 'COMPETITION_ROLE_SCREEN',
+}
+
+module.exports = COMPETITION_ROLES
