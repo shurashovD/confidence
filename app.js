@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const config = require('config')
+const path = require('path')
 
 const log = require('./handlers/logger')
 const auth = require('./middlewares/auth.middleware')
@@ -44,5 +45,9 @@ app.use('/api/competitions', auth, require('./routes/competition.routes'))
 app.use('/api/masters', auth, require('./routes/master.routes'))
 
 app.use('/api/notes', auth, require('./routes/note.routes'))
+
+if ( process.env.LEVEL === 'production' ) {
+    app.use('/', express.static(path.join(__dirname, 'client', 'build')))
+}
 
 start()
