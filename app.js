@@ -47,7 +47,7 @@ app.use('/api/masters', auth, require('./routes/master.routes'))
 app.use('/api/notes', auth, require('./routes/note.routes'))
 
 if ( process.env.LEVEL === 'production' ) {
-    app.use('/', express.static(path.join(__dirname, 'client', 'build')))
+    app.use('*', express.static(path.join(__dirname, 'client', 'build')))
 }
 
 start()

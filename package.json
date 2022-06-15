@@ -8,7 +8,7 @@
     "client:intstall": "npm install --prefix client",
     "client:build": "npm run build --prefix client",
     "dev": "cross-env LEVEL=develop concurrently \"npm run server\" \"npm run client\"",
-    "start": "cross-env LEVEL=production node app",
+    "start": "cross-env LEVEL=production NODE_ENV=production node app",
     "server": "nodemon app.js"
   },
   "keywords": [
