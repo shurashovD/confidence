@@ -213,10 +213,11 @@ router.use('/settings-set-screen-category', parser.json(), async (req, res) => {
     try {
         const { category, userId, competitionId } = req.body
         const competition = await CompetitionModel.findById( competitionId )
-        const result = competition.screens.map(item => (
-            (item.screenId.toString() === userId.toString()) ? {...item._doc, category} : item
-        ))
-        competition.screens = result
+        const index = competition.screens.findIndex(({ screenId }) => screenId.toString() === userId.toString())
+        if ( index === -1 ) {
+            throw new Error('Экран не найден')
+        }
+        competition.screens[index].category = category
         await competition.save()
         res.json({})
     }
@@ -230,10 +231,30 @@ router.use('/settings-set-screen-final', parser.json(), async (req, res) => {
     try {
         const { userId, competitionId, final } = req.body
         const competition = await CompetitionModel.findById( competitionId )
-        const result = competition.screens.map(item => (
-            (item.screenId.toString() === userId.toString()) ? {...item._doc, final} : item
-        ))
-        competition.screens = result
+        const index = competition.screens.findIndex(({ screenId }) => screenId.toString() === userId.toString())
+        if ( index === -1 ) {
+            throw new Error('Экран не найден')
+        }
+        competition.screens[index].final = final
+        await competition.save()
+        res.json({})
+    }
+    catch (e) {
+        log.error(e)
+        res.status(500).json({ message: 'SERVER ERROR' })
+    }
+})
+
+
+router.post('/settings-set-screen-top', parser.json(), async (req, res) => {
+    try {
+        const { userId, competitionId, top } = req.body
+        const competition = await CompetitionModel.findById( competitionId )
+        const index = competition.screens.findIndex(({ screenId }) => screenId.toString() === userId.toString())
+        if ( index === -1 ) {
+            throw new Error('Экран не найден')
+        }
+        competition.screens[index].top = top
         await competition.save()
         res.json({})
     }

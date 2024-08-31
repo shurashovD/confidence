@@ -17,6 +17,7 @@ import { LoginPage } from './pages/LoginPage'
 import { MainPage } from './pages/MainPage'
 import { PhotoPage } from './pages/PhotoPage'
 import { RefereePage } from './pages/RefereePage'
+import { RegisterListPage } from './pages/RegisterListPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { ResultPage } from './pages/ResultPage'
 import { ScreenPage } from './pages/ScreenPage'
@@ -90,9 +91,13 @@ export const Router = () => {
         <main>
           <Modal />
           <Switch>
+            <Route path="/register/list">
+              <RegisterListPage />
+            </Route>
             <Route path="/register">
               <RegisterPage />
             </Route>
+            
             <Redirect to="/register" />
           </Switch>
         </main>

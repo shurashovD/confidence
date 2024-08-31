@@ -8,7 +8,7 @@ import logo from '../img/logo.png'
 export const ScreenPage = () => {
     const page = useRef(0)
     const [pole, setPole] = useState(true)
-    const [result, setResult] = useState([])
+    const [result, setResult] = useState({ result: [], top: false, final: false, referees: [] })
     const timeoutId = useRef()
     const initFetch = useRef(true)
 
@@ -22,6 +22,14 @@ export const ScreenPage = () => {
                 const response = await request('/api/notes/get-result', 'POST', { screenId: auth.id })
                 initFetch.current = false
                 if ( response.result.length > 0 ) {
+                    // для гала ужина;
+                    if ( response.top ) {
+                        page.current = 1
+                        setResult(response)
+                        return
+                    }
+                    
+                    // для обычной работы;
                     if ( page.current * 5 >= response.result.length ) {
                         page.current = 0
                     }
@@ -40,7 +48,7 @@ export const ScreenPage = () => {
         }
         if ( !loading && pole ) {
             setPole(false)
-            timeoutId.current = setTimeout(() => setPole(true), 35 * 1000)
+            timeoutId.current = setTimeout(() => setPole(true), 10 * 1000)
             getResult()
         }
     }, [request, loading, pole, auth])
@@ -55,7 +63,21 @@ export const ScreenPage = () => {
                 </p>
                 <div className="row p-1 rounded bg-primary align-items-center text-center mb-1">
                     <p className="col-1">{dg('place')}</p>
-                    <p className="col-10">{dg('points')}</p>
+                    <p className="col-8 offset-2">
+                        <div className="row align-items-center justify-content-center p-0 h-100">
+                        {
+                            result.referees.map((item, index) => (
+                                <div
+                                    className="d-flex justify-content-center align-items-center h-100"
+                                    key={`referee_${index}`}
+                                    style={{ width: `${100 / result.referees.length}%` }}
+                                >
+                                    {item}
+                                </div>
+                            ))
+                        }
+                        </div>
+                    </p>
                     <p className="col-1">{dg('totalPoints')}</p>
                 </div>
                 {
@@ -65,16 +87,17 @@ export const ScreenPage = () => {
                             return (
                                 <div className="row p-0 border border-primary rounded align-items-stretch text-center mb-1 text-primary" key={noteId}>
                                     <p className="col-1 border-end border-primary d-flex justify-content-center align-items-center fs-4">{place}</p>
-                                    <div className="col-10">
-                                        <div className="row align-items-stretch justify-content-start p-0"> 
-                                            <span className="fs-4 border-end border-primary col" style={{ lineHeight: '2.5rem' }}>
-                                                {name}
-                                            </span>
+                                    <div className="col-2 d-flex justify-content-center align-items-center border-end border-primary">{name}</div>
+                                    <div className="col-8">
+                                        <div className="row align-items-stretch justify-content-start p-0 m-0 h-100">
                                             {
-                                                scores.map(({name, value}, index) => (
-                                                    <div className="border-end border-primary d-flex flex-column justify-content-center align-items-center col" key={`${noteId}_${index}`}>
-                                                        <p className="fs-5">{name}</p>
-                                                        <p className="fs-5">{value}</p>
+                                                scores.map(({value}, index) => (
+                                                    <div
+                                                        className="border-end border-primary d-flex align-items-center justify-content-center col h-100 p-0 m-0 fs-5"
+                                                        key={`${noteId}_${index}`}
+                                                        style={{ width: `${100 / scores.length}%` }}
+                                                    >
+                                                        {value}
                                                     </div>
                                                 ))
                                             }

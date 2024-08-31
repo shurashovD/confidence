@@ -1,0 +1,30 @@
+<h1 class="mt-4">Confidence PM</h1>
+<h3>{{title}} results</h3>
+<div class="accordion" id="accordionExample">
+{{#each result}}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-{{this.id}}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{this.id}}" aria-expanded="false" aria-controls="collapse-{{this.id}}">
+                <div class="d-flex justify-content-between w-100">
+                    <span>{{this.name}}</span>
+                    <b class="mx-3">{{this.total}}</b>
+                </div>
+            </button>
+            </h2>
+            <div id="collapse-{{this.id}}" class="accordion-collapse collapse" aria-labelledby="heading-{{this.id}}" data-bs-parent="#accordionExample">
+                <div class="accordion-body row">
+                    {{#each this.referees}}
+                    <div class="col">
+                        <button type="button" class="btn btn-primary position-relative mb-2">
+                            {{this.name}}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{this.total}}
+                            </span>
+                        </button>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+{{/each}}
+</div>

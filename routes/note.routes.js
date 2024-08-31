@@ -361,8 +361,11 @@ router.use('/set-referee-scores', commentUploadHandler, async (req, res) => {
 
             const file = req.files?.find(({originalname}) => originalname === `${_id}.webm`)
             if ( file ) {
-                await renameFile(file.path, path.join(__dirname, '..', 'uploads', 'comments', `${noteId}_${refereeId}_${file.originalname}`))
-                newRefereeScore.comment = `/api/notes/get-comment/${noteId}_${refereeId}_${file.originalname}`
+                try {
+                    await renameFile(file.path, path.join(__dirname, '..', 'uploads', 'comments', `${noteId}_${refereeId}_${file.originalname}`))
+                    newRefereeScore.comment = `/api/notes/get-comment/${noteId}_${refereeId}_${file.originalname}`
+                }
+                catch {}
             }
 
             newScore.refereeScores = newScore.refereeScores.filter(({testId}) => testId.toString() !== _id.toString()).concat(newRefereeScore)
@@ -374,8 +377,28 @@ router.use('/set-referee-scores', commentUploadHandler, async (req, res) => {
         note.completed = roleFilterReferees.every(referee => note.scores.some(score => score.refereeId.toString() === referee.refereeId.toString()))
 
         await note.save()
-        const enMessage = global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'pointsAreCounted')).phrase
-        const message = global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'pointsAreCounted'))?.phrase ?? enMessage
+        let enMessage = global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'pointsAreCounted')).phrase ?? ''
+        let message = global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'pointsAreCounted'))?.phrase ?? enMessage
+
+        enMessage += '. '
+        message += '. '
+
+        enMessage += global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'yourProgress')).phrase ?? ''
+        message += global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'yourProgress'))?.phrase ?? enMessage
+
+        message += ' '
+
+        const notesByCategory = await NoteModel.find({ competitionId: competition._id, category: note.category })
+        const completedByMeNotes = notesByCategory.filter(({ scores }) => scores.some((item) => item.refereeId?.toString() === refereeId))
+
+        message += `${completedByMeNotes.length}/${notesByCategory.length}`
+
+        if ( note.completed ) {
+            let enMessage = '. '
+            enMessage += global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'participantCompleteAssessment')).phrase ?? ''
+            const completeMessage = global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'participantCompleteAssessment'))?.phrase ?? enMessage
+            message += completeMessage
+        }
         return res.json({ message })
     }
     catch (e) {
@@ -398,11 +421,10 @@ router.use('/get-result', parser.json(), async (req, res) => {
             return res.status(500).json({ title: '', result: [] })
         }
 
-        const { category, final } = competition.screens?.find(item => item.screenId.toString() === screenId.toString()) ?? {}
+        const { category, final, top } = competition.screens?.find(item => item.screenId.toString() === screenId.toString()) ?? {}
         const { refereeSetting } = competition
-        if ( !category ) {
-            log.error(`Не удалось получить категорию для экрана ${screenId}`)
-            return res.status(500).json({ title: '', result: [] })
+        if ( !category || category === undefined || category === 'undefined' ) {
+            return res.json({ title: '', result: [] })
         }
 
         const users = await UserModel.find()
@@ -426,9 +448,30 @@ router.use('/get-result', parser.json(), async (req, res) => {
             const total = scores.reduce((sum, item) => sum + item.value, 0)
 
             return { noteId: note._id, name, scores, total }
-        })
-        
-        res.json({ category, final, result })
+        }).sort((a, b) => b.total - a.total)
+
+        const referees = targetReferees.map(({ refereeId }) => users.find(({_id}) => _id.toString() === refereeId.toString())?.name ?? 'Referee')
+        res.json({ category, final, top, result, referees })
+    }
+    catch (e) {
+        log.error(e)
+        const enMessage = global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'serverError')).phrase
+        const message = global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'serverError'))?.phrase ?? enMessage
+        return res.status(500).json({ message })
+    }
+})
+
+router.get('/register-list', async (req, res) => {
+    try {
+        const competition = await CompetitionModel.findOne({ status: COMP_ST.started })
+
+        if ( !competition ) {
+            log.error('Попытка получения списка участников без запущенного мероприятия')
+            return res.status(500).json({ title: '', result: [] })
+        }
+
+        const list = await NoteModel.find({ competitionId: competition._id }).populate('master')
+        return res.json(list)
     }
     catch (e) {
         log.error(e)

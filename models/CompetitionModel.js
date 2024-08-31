@@ -1,5 +1,4 @@
 const { model, Schema, Types } = require('mongoose')
-const { feathering } = require('../types/categoryTypes')
 
 const competitionSchema = new Schema({
     competitionName: String,
@@ -24,8 +23,9 @@ const competitionSchema = new Schema({
     screens: [
         {
             screenId: { type: Types.ObjectId, ref: 'User' },
+            top: { type: Boolean, default: false },
             final: { type: Boolean, default: false },
-            category: { type: String, default: feathering },
+            category: { type: String },
         }
     ]
 })

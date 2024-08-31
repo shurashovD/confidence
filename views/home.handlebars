@@ -1,0 +1,38 @@
+<h1 class="mt-4">Confidence PM</h1>
+<h3>Complete competitions results</h3>
+<div class="row g-4 mt-0">
+    {{#each competitions}}
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card w-100 mb-3 h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{this.competitionName}}</h5>
+                <p class="card-text mb-0">
+                    <span class="text-muted">Location: </span>
+                    {{this.competitionPlace}}
+                </p>
+                <p class="card-text">
+                    <span class="text-muted">Date: </span>
+                    {{this.from}} - {{this.to}}
+                </p>
+            </div>
+            <ul class="list-group list-group-flush mt-auto">
+                <li class="list-group-item">
+                    <a href="/results/Microblading/{{this.id}}" class="btn btn-outline-primary w-100">Microblading</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/results/feathering/{{this.id}}" class="btn btn-outline-primary w-100">Feathering</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/results/lips/{{this.id}}" class="btn btn-outline-primary w-100">Lipstick effect</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/results/arrow/{{this.id}}" class="btn btn-outline-primary w-100">Arrow</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="/results/hairTechnology/{{this.id}}" class="btn btn-outline-primary w-100">Hair technology</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {{/each}}
+</div>

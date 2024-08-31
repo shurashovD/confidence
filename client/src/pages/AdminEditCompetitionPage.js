@@ -113,7 +113,11 @@ export const AdminEditCompetitionPage = () => {
             const userId = event.target.getAttribute('data-user-id')
             const competitionId = form.id
             const category = event.target.value
-            await request('/api/competitions/settings-set-screen-category', 'POST', { category, userId, competitionId })
+            if ( category === 'null' ) {
+                await request('/api/competitions/settings-set-screen-category', 'POST', { userId, competitionId })
+            } else {
+                await request('/api/competitions/settings-set-screen-category', 'POST', { category, userId, competitionId })
+            }
             getCompetition(competitionId)
         }
         catch {}
@@ -125,6 +129,17 @@ export const AdminEditCompetitionPage = () => {
         const final = event.target.checked
         try {
             await request('/api/competitions/settings-set-screen-final', 'POST', { userId, competitionId, final })
+            getCompetition(competitionId)
+        }
+        catch {}
+    }
+
+    const topCheckboxHandler = async event => {
+        const userId = event.target.getAttribute('data-user-id')
+        const competitionId = form.id
+        const top = event.target.checked
+        try {
+            await request('/api/competitions/settings-set-screen-top', 'POST', { userId, competitionId, top })
             getCompetition(competitionId)
         }
         catch {}
@@ -301,12 +316,13 @@ export const AdminEditCompetitionPage = () => {
                                     <th scope="col">Логин</th>
                                     <th scope="col">Категория</th>
                                     <th scope="col">Финал</th>
+                                    <th scope="col">Топ</th>
                                     <th scope="col">Удалить</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {
-                                form.screens?.map(({screenId, avatar, name, login, category, final}) => (
+                                form.screens?.map(({screenId, avatar, name, login, category, final, top}) => (
                                     <tr key={screenId}>
                                         <td>
                                             <img src={avatar} alt="avatar" width="75" className="rounded" />
@@ -320,6 +336,7 @@ export const AdminEditCompetitionPage = () => {
                                                 onChange={categoryChangeHandler}
                                                 data-user-id={screenId}
                                             >
+                                                <option value="null">OFF</option>
                                                 <option value={CATEGORY_TYPE_FEATHERING}>{dg(CATEGORY_TYPE_FEATHERING)}</option>
                                                 <option value={CATEGORY_TYPE_ARROW}>{dg(CATEGORY_TYPE_ARROW)}</option>
                                                 <option value={CATEGORY_TYPE_LIPS}>{dg(CATEGORY_TYPE_LIPS)}</option>
@@ -331,6 +348,12 @@ export const AdminEditCompetitionPage = () => {
                                             <input className="form-check-input" type="checkbox" data-user-id={screenId}
                                                 checked={final}
                                                 onChange={finalCheckboxHandler}
+                                            />
+                                        </td>
+                                        <td className="text-center">
+                                            <input className="form-check-input" type="checkbox" data-user-id={screenId}
+                                                checked={top}
+                                                onChange={topCheckboxHandler}
                                             />
                                         </td>
                                         <td>

@@ -11,7 +11,7 @@ const noteSchema = new Schema({
     completed: { type: Boolean, default: false },
     scores: [
         {
-            refereeId: { type: Types.ObjectId, ref: 'Referee' },
+            refereeId: { type: Types.ObjectId, ref: 'User' },
             refereeScores: [
                 {
                     testId: { type: Types.ObjectId, ref: 'Test' },

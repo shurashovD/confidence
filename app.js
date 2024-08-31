@@ -7,6 +7,8 @@ const log = require('./handlers/logger')
 const auth = require('./middlewares/auth.middleware')
 const dictionaryModel = require('./models/DictionaryModel')
 
+const { engine } = require('express-handlebars')
+
 const app = express()
 
 const start = async () => {
@@ -21,6 +23,7 @@ const start = async () => {
         })
         global.dictionary = await dictionaryModel.find()
         app.listen(PORT, () => {
+            console.log(`Server is running on PORT ${PORT}...`);
             if ( process.env.LEVEL === 'develop' ) {
                 log.debug(`Server is running on PORT ${PORT}...`)
             }
@@ -33,6 +36,13 @@ const start = async () => {
         log.error(e)
     }
 }
+
+
+app.engine('handlebars', engine())
+app.set('view engine', 'handlebars')
+app.set('views', './views')
+
+app.use('/results', require('./routes/result.routes'))
 
 app.use('/api/auth', require('./routes/auth.routes'))
 
@@ -47,7 +57,11 @@ app.use('/api/masters', auth, require('./routes/master.routes'))
 app.use('/api/notes', auth, require('./routes/note.routes'))
 
 if ( process.env.LEVEL === 'production' ) {
-    app.use('*', express.static(path.join(__dirname, 'client', 'build')))
+    app.use(express.static(path.join(__dirname, 'client', 'build')))
 }
+
+app.get('*', (req, res) => {
+    return res.redirect('/')
+})
 
 start()
