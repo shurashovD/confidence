@@ -157,8 +157,16 @@ router.use('/get-note-by-rfid', parser.json(), async (req, res) => {
 router.use('/get-note-for-referee', parser.json(), async (req, res) => {
     const acceptLanguage = (req.headers['accept-language'])
     try {
+        const competition = await CompetitionModel.findOne({ status: COMP_ST.started })
+        if ( !competition ) {
+            log.error('Попытка получения участника без запущенного мероприятия')
+            const enMessage = global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'nonStartedCompetition')).phrase
+            const message = global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'nonStartedCompetition'))?.phrase ?? enMessage
+            return res.status(500).json({ message })
+        }
+
         const { rfid } = req.body
-        const note = await NoteModel.findOne({ rfid, completed: false })
+        const note = await NoteModel.findOne({ rfid, completed: false, competitionId: competition._id })
         if ( !note ) {
             const enMessage = global.dictionary.find(({lang, key}) => (lang === 'EN' && key === 'errorReceivingPart')).phrase
             const message = global.dictionary.find(({lang, key}) => (lang === acceptLanguage && key === 'errorReceivingPart'))?.phrase ?? enMessage
