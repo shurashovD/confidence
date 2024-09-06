@@ -9,11 +9,18 @@ const log = require('../handlers/logger')
 
 const COMPETITION_STATUSES = require('../types/competitionStatuses')
 const COMPETITION_ROLES = require('../types/refereeRoles')
+const NoteModel = require('../models/NoteModel')
 
 
-router.use('/get-currrent-info', (req, res) => {
+router.use('/get-currrent-info', async (req, res) => {
     try {
-        res.json([])
+        const competition = await CompetitionModel.findOne({ status: COMPETITION_STATUSES.started })
+        if (!competition) {
+            return res.json([])
+        }
+        
+        const notes = await NoteModel.find({ competitionId: competition._id })
+        
     }
     catch (e) {
         log.error(e)
@@ -244,7 +251,6 @@ router.use('/settings-set-screen-final', parser.json(), async (req, res) => {
         res.status(500).json({ message: 'SERVER ERROR' })
     }
 })
-
 
 router.post('/settings-set-screen-top', parser.json(), async (req, res) => {
     try {
